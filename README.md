@@ -2,7 +2,7 @@
 # SimpleChat
 Simple Chatting Program (java)
 # HOW TO USE?
-Desktop/javaProject/AdvanceChat를 열어주세요를 열어주세요!!!
+
 
 ## Client Compile 방법
  javac ChatClient.java
