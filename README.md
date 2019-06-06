@@ -36,7 +36,15 @@ Simple Chatting Program (java)
 
 ## Lab7: Customizing 3
 - 1. 클라이언트에서 '/spamlist' 를 입력하면 현재 서버에 등록된 금지어의 목록 출력 기능 구현 (미리 금지어가 등록되어 있을 필요 없음)
+
+<img width="966" alt="스크린샷 2019-06-06 오후 10 54 21" src="https://user-images.githubusercontent.com/42690774/59038794-95c65180-88ae-11e9-9b0c-aa1b096a2d7c.png">
+
 - 2. 클라이언트에서 '/addspam 단어'를 입력하면 해당 <단어>가 서버에 금지어로 추가되도록 하는 기능 구현
+
+<img width="963" alt="스크린샷 2019-06-06 오후 10 54 52" src="https://user-images.githubusercontent.com/42690774/59038796-95c65180-88ae-11e9-9fb5-1e44064a53ae.png">
+
 - 3. 금지어 파일 관리 기능 구현 - 서버를 시작하면 금지어 리스트는 특정 파일에서 불러오고, 서버가 종료되면 새로 추가된 금지어를 포함한 현재 리스트가 파일에 저장되도록 기능 구현
+
+<img width="965" alt="스크린샷 2019-06-06 오후 10 57 51" src="https://user-images.githubusercontent.com/42690774/59038797-965ee800-88ae-11e9-8306-4dbd38071e98.png">
 
 > Q&A: 21400564@handong.edu
