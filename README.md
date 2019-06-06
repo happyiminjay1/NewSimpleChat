@@ -45,6 +45,6 @@ Simple Chatting Program (java)
 
 - 3. 금지어 파일 관리 기능 구현 - 서버를 시작하면 금지어 리스트는 특정 파일에서 불러오고, 서버가 종료되면 새로 추가된 금지어를 포함한 현재 리스트가 파일에 저장되도록 기능 구현
 
-<img width="965" alt="스크린샷 2019-06-06 오후 10 57 51" src="https://user-images.githubusercontent.com/42690774/59038797-965ee800-88ae-11e9-8306-4dbd38071e98.png">
+<img width="1155" alt="스크린샷 2019-06-06 오후 11 02 49" src="https://user-images.githubusercontent.com/42690774/59039166-42a0ce80-88af-11e9-8773-217bcf9453cc.png">
 
 > Q&A: 21400564@handong.edu
