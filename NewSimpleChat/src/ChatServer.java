@@ -1,19 +1,19 @@
-
 import java.net.*;
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 public class ChatServer {
+
 	public static void main(String[] args) {
 		try{
 			ServerSocket server = new ServerSocket(10001);
-			/*ServerSocket(int port) 
+			/*ServerSocket(int port)
 			Creates a server socket, bound to the specified port.
 			https://docs.oracle.com/javase/7/docs/api/java/net/ServerSocket.html
 			*/
 			System.out.println("Waiting connection...");
-			HashMap hm = new HashMap();
+			HashMap<String,ClientInfo> hm = new HashMap();
 			ArrayList<String> banWord = new ArrayList<>();
 			File file = new File("banword.txt");
 			BufferedReader br = null;
@@ -37,7 +37,7 @@ public class ChatServer {
 			while(true){
 				Socket sock = server.accept();
 				/*Socket
-				server.accept() : Listens for a connection to be made to this socket and accepts it. 
+				server.accept() : Listens for a connection to be made to this socket and accepts it.
 								  The method blocks until a connection is made.
 				Returns: the new Socket
 				접속 대기 -> Returns: the new Socket
@@ -57,13 +57,15 @@ public class ChatServer {
 }
 
 class ChatThread extends Thread{
-	private Socket sock; 
+	private Socket sock;
+	private String chatRoom;
 	private String id;
 	private BufferedReader br;
-	private HashMap hm;
+	private HashMap<String,ClientInfo> hm;
 	private ArrayList<String> banWord;
 	private boolean initFlag = false;
-	public ChatThread(Socket sock, HashMap hm, ArrayList<String> banWord){
+	private ClientInfo clientInfo;
+	public ChatThread(Socket sock, HashMap<String,ClientInfo> hm, ArrayList<String> banWord){
 		this.sock = sock;
 		this.hm = hm;
 		this.banWord =banWord;
@@ -71,11 +73,14 @@ class ChatThread extends Thread{
 			PrintWriter pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
 			br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			id = br.readLine(); // read id //read()
-			broadcast(id + " entered.");//broadcast(id + "entered")
+			chatRoom = br.readLine();
 			System.out.println("[Server] User (" + id + ") entered."); // tell sever (id) has entered
+			clientInfo = new ClientInfo(chatRoom,pw);
 			synchronized(hm){ //synchronize hm to all of thread
-				hm.put(this.id, pw); // put new (id) to hashmap, key : id , value : pw (PrinWriter)
+				hm.put(this.id, this.clientInfo); // put new (id) to hashmap, key : id , value : pw (PrinWriter)
 			}
+			broadcast(id + " entered.");//broadcast(id + "entered")
+
 			initFlag = true; //
 		}catch(Exception ex){
 			System.out.println(ex);
@@ -85,7 +90,7 @@ class ChatThread extends Thread{
 		try{
 			String line = null;
 			while((line = br.readLine()) != null){
-				if(line.equals("/quit"))//if the text is equal to /quit break the loop 
+				if(line.equals("/quit"))//if the text is equal to /quit break the loop
 					break;
 				if(line.equals("/userlist"))//if the test is euqal to '/userlist' run sendmsg_userlist()
 				{
@@ -97,7 +102,7 @@ class ChatThread extends Thread{
 				}
 				else if(line.indexOf("/addspam") == 0)
 				{
-					int start = line.indexOf(" ") +1; 
+					int start = line.indexOf(" ") +1;
 					String str = line.substring(start);
 					addspam(str);
 					addBanWordList(str);
@@ -115,7 +120,7 @@ class ChatThread extends Thread{
 			System.out.println(ex); //handling error
 		}finally{
 			synchronized(hm){
-				hm.remove(id); //remove (id) from hashmap  
+				hm.remove(id); //remove (id) from hashmap
 			}
 			broadcast(id + " exited."); // boradcast that (id) has exited to all client
 			try{
@@ -129,15 +134,15 @@ class ChatThread extends Thread{
 		Date date = new Date();//clss date
     	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("[a h:mm]",Locale.KOREAN);//make foramt of clock [오후/오전 시간:분] language into Korean
     	String datemsg = simpleDateFormat.format(date);//give data to simpleDateForamte and make datemsg
-		int start = msg.indexOf(" ") +1; 
+		int start = msg.indexOf(" ") +1;
 		int end = msg.indexOf(" ", start);
 		if(end != -1){
-			String to = msg.substring(start, end); //get (id = someone to send) 
+			String to = msg.substring(start, end); //get (id = someone to send)
 			String msg2 = msg.substring(end+1); //get message to send
-			Object obj = hm.get(to); // get value from hashmap
+			Object obj = hm.get(to).pw; // get value from hashmap
 			if(checkBanWord(msg2)) // check if msg2 contains banWord
 			{
-				Object obj2 = hm.get(id); //get Users printWriter Object
+				Object obj2 = hm.get(id).pw; //get Users printWriter Object
 				PrintWriter pwUser = (PrintWriter)obj2;
 				pwUser.println("Becareful of using Ban words!!");//send to User who write banWord
 				pwUser.flush();//send meassage
@@ -149,16 +154,18 @@ class ChatThread extends Thread{
 				pw.flush(); // send message
 			} // if
 		}
-	} // sendmsg
+	} // sendms
+
 	public void broadcast(String msg){
 		Date date = new Date();//make clss date
     	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("[a h:mm]",Locale.KOREAN);//make foramt of clock [오후/오전 시간:분] language into Korean
     	String datemsg = simpleDateFormat.format(date);//give data to simpleDateForamte and make datemsg
 		msg = datemsg + " " + msg; //put datemsg in msg
 		synchronized(hm){ //synchronize hashmap
-			Object obj = hm.get(id);
+			Object obj = hm.get(id).pw;
 			PrintWriter pwUser = (PrintWriter)obj;
-			Collection collection = hm.values(); //collection to 
+			String chatRoomUser = hm.get(id).chatRoom;
+			Collection collection = hm.values(); //collection to
 			Iterator iter = collection.iterator();//iterator to acces collection
 			if(checkBanWord(msg))
 			{
@@ -167,7 +174,9 @@ class ChatThread extends Thread{
 				return;
 			}
 			while(iter.hasNext()){//check iterator is empty (to send message to all user)
-				PrintWriter pw = (PrintWriter)iter.next();
+				ClientInfo clientInfo = (ClientInfo)iter.next();
+				PrintWriter pw = clientInfo.pw;
+				if(!chatRoomUser.equals(clientInfo.chatRoom)) continue;
 				if(pw.equals(pwUser)) continue;
 				pw.println(msg);//send massage to specified person(which iterator has given)
 				pw.flush();//send meassage
@@ -183,13 +192,13 @@ class ChatThread extends Thread{
 				msg += (key + "\n"); //make String contain of  all keys
 			}
 			msg = msg.substring(0,msg.length()-1);
-			Object obj = hm.get(id);
+			Object obj = hm.get(id).pw;
 			PrintWriter pw = (PrintWriter)obj;
 			pw.println(msg);//send message only to the User
 			pw.flush();//send meassage
 		}
 	}
-	
+
 	public void sendmsg_spamlist(){
 		String msg = "";
 		synchronized(hm){
@@ -197,7 +206,7 @@ class ChatThread extends Thread{
 				msg += (key + "\n"); //make String contain of  all keys
 			}
 			msg = msg.substring(0,msg.length()-1);
-			Object obj = hm.get(id);
+			Object obj = hm.get(id).pw;
 			PrintWriter pw = (PrintWriter)obj;
 			pw.println(msg);//send message only to the User
 			pw.flush();//send meassage
@@ -231,5 +240,4 @@ class ChatThread extends Thread{
       }
 
 	}
-	
 }

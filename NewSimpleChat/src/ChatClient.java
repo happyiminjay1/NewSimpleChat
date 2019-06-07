@@ -1,4 +1,3 @@
-
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
@@ -6,6 +5,7 @@ import java.util.Scanner;
 public class ChatClient {
   String serverIp;
   String username;
+  String chatRoom;
   boolean endflag = false;
 
   public static void main(String[] args) {
@@ -15,15 +15,18 @@ public class ChatClient {
     String username = sc.nextLine();
     System.out.print("server ip >> "); //get userIp
     String serverIp = sc.nextLine();
+    System.out.print("Enter room (main) >> ");
+    String chatRoom = sc.nextLine();
 
-    ChatClient chatClient = new ChatClient(serverIp,username);
+    ChatClient chatClient = new ChatClient(serverIp,username,chatRoom);
     chatClient.start();
   }
 
-  ChatClient (String serverIp, String username)
+  ChatClient (String serverIp, String username, String chatRoom)
   {
       this.serverIp = serverIp;
       this.username = username;
+      this.chatRoom = chatRoom;
   }//constructor
 
   public void start()
@@ -38,6 +41,8 @@ public class ChatClient {
       BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
       // send username.
       pw.println(username);
+      pw.flush();
+      pw.println(chatRoom);
       pw.flush();
       InputThread it = new InputThread(sock, br);
       it.start();
@@ -96,5 +101,5 @@ class InputThread extends Thread{
           sock.close();
       }catch(Exception ex){}
     }
-  } // InputThread
+  } // InputThread!
 }
