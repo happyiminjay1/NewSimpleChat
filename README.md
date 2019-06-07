@@ -47,4 +47,9 @@ Simple Chatting Program (java)
 
 <img width="1155" alt="스크린샷 2019-06-06 오후 11 02 49" src="https://user-images.githubusercontent.com/42690774/59039166-42a0ce80-88af-11e9-8773-217bcf9453cc.png">
 
+-4. client는 시작 할때 아이디, ip, 그리고 방이름을 입력한다.
+client가 입력한 방에 들어가 있는 사람끼리 대화를 주고 받을 수 있다.
+
+<img width="451" alt="image" src="https://user-images.githubusercontent.com/42690774/59107774-4f3b2a80-8974-11e9-8881-3a24abbde56f.png">
+
 > Q&A: 21400564@handong.edu
